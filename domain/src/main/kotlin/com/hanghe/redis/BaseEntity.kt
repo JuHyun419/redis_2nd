@@ -1,5 +1,6 @@
 package com.hanghe.redis
 
+import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners
 import jakarta.persistence.MappedSuperclass
 import org.springframework.data.annotation.CreatedDate
@@ -14,6 +15,7 @@ open class BaseEntity {
     var createdBy: String? = null
 
     @CreatedDate
+    @Column(updatable = false)
     var createdAt: LocalDateTime = LocalDateTime.now()
 
     @LastModifiedDate
