@@ -10,7 +10,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 @Entity(name = "movies")
 class MovieEntity(
@@ -31,7 +31,7 @@ class MovieEntity(
     val genre: MovieGenre,
 
     @Column(nullable = false)
-    val releaseDate: LocalDateTime,
+    val releaseDate: LocalDate,
 
     @Column
     val thumbnailImage: String = DEFAULT_THUMBNAIL_IMAGE,
