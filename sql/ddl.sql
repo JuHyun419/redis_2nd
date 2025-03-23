@@ -15,6 +15,8 @@ CREATE TABLE movies
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE INDEX idx_title_genre ON movies (title, genre);
+
 
 -- 극장 테이블
 CREATE TABLE theaters
@@ -46,6 +48,8 @@ CREATE TABLE screenings
     FOREIGN KEY (movie_id) REFERENCES movies (id),
     FOREIGN KEY (theater_id) REFERENCES theaters (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_start_time ON screenings (start_time);
 
 
 -- 좌석 테이블
