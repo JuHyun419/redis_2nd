@@ -11,4 +11,8 @@ class ScreeningRepositoryImpl(
     override fun findByMovieIdOrderByStartTime(movieId: Long): List<ScreeningEntity> {
         return screeningJpaRepository.findByMovieIdOrderByStartTime(movieId)
     }
+
+    override fun saveAll(movies: List<ScreeningEntity>): List<ScreeningEntity> {
+        return screeningJpaRepository.saveAll(movies)
+    }
 }
