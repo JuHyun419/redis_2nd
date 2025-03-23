@@ -4,5 +4,7 @@ import com.hanghe.redis.movie.MovieEntity
 
 interface MovieRepository {
 
-    fun findAllByOrderByReleaseDateDesc(): List<MovieEntity>
+    fun findAll(): List<MovieEntity>
+
+    fun search(title: String?, genre: String?): List<MovieEntity>
 }
