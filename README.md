@@ -104,3 +104,100 @@ Accept: application/json
 API 응답 값에도 상영관 이름이 필요하여 역정규화를 하였습니다.
 - 좌석(seats) 테이블의 설계가 적합한지?
 - JPA N+1 이슈로 인해 영화 조회 시 JOIN FETCH 를 적용하여 연관 관계의 데이터(상영, 극장)도 함께 가져올 수 있도록 설정합니다.
+
+<br>
+
+## 2주차 시나리오
+> 2주차는 조회 페이지의 성능 개선에 초점을 맞췄습니다. Indexing, Caching 을 적용하면서 단계별로 성능 측정 및 성능 최적화 하는 것을 경험합니다.
+
+### 성능 테스트 [k6 script](k6/performance.js)
+https://grafana.com/docs/k6/latest/
+
+> 테스트 환경 
+> - Apple M1 Pro, 8 Core, 32GB
+> - 20명의 유저가 10초 동안 요청하는 것을 기준으로 진행합니다. (delay: 1초)
+> - Datasource 는 min/max poolSize 를 20으로 설정하여 진행합니다.
+> - 상영중(screenings) 데이터: 약 1,500건
+
+
+<details>
+<summary>1. 1주차에서 구현한 API 에 대한 성능 테스트</summary>
+
+![img_1.png](img_1.png)
+- HTTP 요청 횟수: 130
+- 평균 요청 시간: 638ms (p90: 1.19s)
+- 최대 요청 시간: 1.55s
+
+</details>
+
+<details>
+<summary>2. 2주차 요구 사항인 검색 기능을 추가하여 성능 테스트를 진행</summary>
+
+![img_2.png](img_2.png)
+- HTTP 요청 횟수: 165
+- 평균 요청 시간: 241ms (p90: 527ms)
+- 최대 요청 시간: 1.45s
+
+</details>
+
+<details>
+<summary>3. 인덱스를 추가하고, 실행 계획을 확인하며 성능 테스트를 진행</summary>
+
+![img_5.png](img_5.png)
+- HTTP 요청 횟수: 180
+- 평균 요청 시간: 158ms (p90: 290ms)
+- 최대 요청 시간: 550ms
+
+</details>
+
+<details>
+<summary>4~5. 캐싱 적용 후 성능 테스트를 진행</summary>
+
+![img_6.png](img_6.png)
+- HTTP 요청 횟수: 189
+- 평균 요청 시간: 138ms (p90: 215ms)
+- 최대 요청 시간: 1.12s
+
+</details>
+
+
+[k6 Built-in metrics](https://grafana.com/docs/k6/latest/using-k6/metrics/reference/)
+- `http_req_duration`: 요청에 대한 총 시간
+    - http_req_sending + http_req_waiting + http_req_receiving
+- `http_req_sending`: 요청 데이터를 서버로 보내는 데 소요되는 시간
+- `http_req_waiting`: 서버의 응답을 기다리는 시간 (서버의 처리 시간)
+- `http_req_receiving`: 서버로부터 응답 데이터를 받는 데 걸린 시간
+- http_reqs: k6 이 생성한 총 HTTP 요청 수
+
+### Query Plan
+
+```sql
+explain select
+            me1_0.id,
+            me1_0.created_at,
+            me1_0.created_by,
+            me1_0.genre,
+            me1_0.grade,
+            me1_0.release_date,
+            me1_0.running_time,
+            me1_0.thumbnail_image,
+            me1_0.title,
+            me1_0.updated_at,
+            me1_0.updated_by
+        from movies me1_0
+        where me1_0.title='인셉션'
+          and me1_0.genre='SF'
+        order by
+            me1_0.release_date desc;
+```
+
+인덱스 설정이 되어있지 않았을 때,
+![img_3.png](img_3.png)
+
+(title, genre) 복합 인덱스 설정 후
+![img_4.png](img_4.png)
+
+### TODO
+- gradle 의존성 최적화
+- infrastructure 모듈에서 cache, mysql 등 모듈 분리
+- 검색 쿼리 최적화
