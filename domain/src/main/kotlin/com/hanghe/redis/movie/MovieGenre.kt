@@ -8,4 +8,10 @@ enum class MovieGenre(val type: String) {
     HORROR("호러"),
 
     SF("SF");
+
+    companion object {
+        fun from(genre: String): MovieGenre? {
+            return entries.find { it.name == genre }
+        }
+    }
 }
