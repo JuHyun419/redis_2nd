@@ -1,6 +1,7 @@
 package com.hanghe.redis.cache
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.StringRedisTemplate
 import java.time.Duration
 import kotlin.reflect.KClass
@@ -25,8 +26,17 @@ class RedisCacheManager(
     override fun <T : Any> put(key: String, ttl: Duration, clazz: KClass<T>, cacheable: () -> T): T {
         val value = cacheable()
 
-        redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(value), ttl)
+        runCatching {
+            val serializedValue = objectMapper.writeValueAsString(value)
+            redisTemplate.opsForValue().set(key, serializedValue, ttl)
+        }.onFailure { e ->
+            logger.error("Failed to cache data put in Redis, key: `$key`, Error Message: ${e.message}")
+        }
 
         return value
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(RedisCacheManager::class.java)
     }
 }
