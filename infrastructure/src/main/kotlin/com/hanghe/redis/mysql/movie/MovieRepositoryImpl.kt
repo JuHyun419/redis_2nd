@@ -20,15 +20,15 @@ class MovieRepositoryImpl(
     override fun search(title: String?, genre: String?): List<MovieEntity> {
         return jpaQueryFactory.selectFrom(qMovie)
             .where(
-                eqTitle(title),
+                likeTitle(title),
                 eqGenre(genre)
             )
             .orderBy(qMovie.releaseDate.desc())
             .fetch()
     }
 
-    private fun eqTitle(title: String?): BooleanExpression? {
-        return title?.let { qMovie.title.eq(it) }
+    private fun likeTitle(title: String?): BooleanExpression? {
+        return title?.let { qMovie.title.like("%$it%") }
     }
 
     private fun eqGenre(genre: String?): BooleanExpression? {
