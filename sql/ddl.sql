@@ -56,7 +56,7 @@ CREATE INDEX idx_start_time ON screenings (start_time);
 CREATE TABLE seats
 (
     id         BIGINT UNSIGNED       NOT NULL AUTO_INCREMENT COMMENT '좌석 ID',
-    seat_code  VARCHAR(255) NOT NULL COMMENT '좌석 코드',
+    seat_code  VARCHAR(10) NOT NULL COMMENT '좌석 코드',
     theater_id BIGINT UNSIGNED       NOT NULL COMMENT '극장 ID',
     created_at TIMESTAMP DEFAULT NOW() COMMENT '생성 일시',
     created_by VARCHAR(255) COMMENT '생성자',
@@ -65,6 +65,8 @@ CREATE TABLE seats
     PRIMARY KEY (id),
     FOREIGN KEY (theater_id) REFERENCES theaters (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_seats_theater_id ON seats (theater_id);
 
 
 -- 예약 테이블
@@ -81,3 +83,5 @@ CREATE TABLE reservations
     FOREIGN KEY (screening_id) REFERENCES screenings (id),
     FOREIGN KEY (seat_id) REFERENCES seats (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+UNIQUE KEY uniq_screening_seat (screening_id, seat_id)
