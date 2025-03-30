@@ -3,7 +3,7 @@ import { sleep } from 'k6';
 
 export const options = {
     vus: 5,               // 동시에 요청할 가상 유저 수
-    duration: '5s',        // 테스트 시간 (원하면 조절 가능)
+    duration: '2s',        // 테스트 시간 (원하면 조절 가능)
 };
 
 export default function () {

@@ -9,7 +9,7 @@ value class SeatCodes(val values: List<SeatCode>) {
 
     fun validate(seatCodes: SeatCodes?) {
         validateContinuity()
-//        validateNoOverlapWith(seatCodes)
+        validateNoOverlapWith(seatCodes)
     }
 
     // 모든 좌석이 이어 붙어진 형식인지 검증

@@ -9,14 +9,15 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class SeatRepositoryImpl(
+    private val seatJpaRepository: SeatJpaRepository,
     private val jpaQueryFactory: JPAQueryFactory
 ) : SeatRepository {
 
-    override fun findByTheaterIdAndSeatIdsIn(theaterId: Any, seatIds: List<Long>): List<SeatEntity> {
+    override fun findByTheaterIdAndSeatIdsIn(theaterId: Long, seatIds: List<Long>): List<SeatEntity> {
         return jpaQueryFactory
             .selectFrom(qSeat)
             .where(
-                qSeat.theater.id.eq(theaterId as Long),
+                qSeat.theater.id.eq(theaterId),
                 qSeat.id.`in`(seatIds)
             )
             .fetch()
@@ -36,6 +37,10 @@ class SeatRepositoryImpl(
                 qSeat.id.`in`(seatIds)
             )
             .fetch()
+    }
+
+    override fun findByTheaterIdAndSeatIdsByPessimisticLock(theaterId: Long, seatIds: List<Long>): List<SeatEntity> {
+        return seatJpaRepository.findByTheaterIdAndSeatIdsByPessimisticLock(theaterId, seatIds)
     }
 
     companion object {

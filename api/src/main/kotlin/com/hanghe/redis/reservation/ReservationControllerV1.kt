@@ -22,4 +22,15 @@ class ReservationControllerV1(
             seatIds = request.seatIds,
         )
     }
+
+    @PostMapping("/pessimistic")
+    fun reservationWithPessimisticLock(
+        @RequestBody request: MovieReservationRequest
+    ) {
+        service.reservationWithPessimisticLock(
+            screeningId = request.screeningId,
+            userId = request.userId,
+            seatIds = request.seatIds,
+        )
+    }
 }
