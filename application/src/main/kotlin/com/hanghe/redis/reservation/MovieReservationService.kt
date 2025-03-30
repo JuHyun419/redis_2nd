@@ -92,4 +92,38 @@ class MovieReservationService(
         // TODO: 비동기 적용
         messageClient.send(userId, screening.theaterName, screening.movie.title, requestSeatCodes)
     }
+
+    fun reservationWithOptimisticLock(screeningId: Long, userId: String, seatIds: List<Long>) {
+        val reservations = reservationRepository.findByScreeningId(screeningId)
+
+        reservationPolicy.validate(
+            userId = userId,
+            existingCount = reservations.count { it.createdBy == userId },
+            newCount = seatIds.size
+        )
+
+        val seats = seatRepository.findByTheaterIdAndSeatIdsByOptimisticLock(screeningId, seatIds)
+        val requestSeatCodes = SeatCodes(seats)
+        val reservedSeatCodes = reservations
+            .takeIf { it.isNotEmpty() }
+            ?.let { SeatCodes(it.map { r -> r.seat.seatCode }) }
+
+        requestSeatCodes.validate(reservedSeatCodes)
+
+        val screening: ScreeningEntity = screeningRepository.findById(screeningId)
+            ?: throw EntityNotFoundException()
+
+        val newReservations = seats.map { seat ->
+            ReservationEntity(
+                screening = screening,
+                seat = seat,
+            ).apply {
+                this.createdBy = userId
+            }
+        }
+        reservationRepository.saveAll(newReservations)
+
+        // TODO: 비동기 적용
+        messageClient.send(userId, screening.theaterName, screening.movie.title, requestSeatCodes)
+    }
 }

@@ -201,3 +201,12 @@ explain select
 - gradle 의존성 최적화
 - infrastructure 모듈에서 cache, mysql 등 모듈 분리
 - 검색 쿼리 최적화
+
+## 3주차 시나리오
+> 3주차는 동시성 이슈 해결에 초점을 맞췄습니다. 단계별로 Lock 을 적용하고, Redisson 라이브러리에 Lua script 가 작성된 것을 확인합니다. 또한 성능 최적화를 위해 AOP 분산락에서 함수형 분산락을 적용하는 경험을 합니다. 
+
+- [X] 예약 API 구현
+- [X] Pessimistic Lock 구현
+- [X] Optimistic Lock 구현
+- [ ] AOP 기반 Distributed Lock 구현
+- [ ] 함수형 기반 Distributed Lock 구현

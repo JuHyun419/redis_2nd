@@ -9,4 +9,6 @@ interface SeatRepository {
     fun findByScreeningIdAndSeatIds(screeningId: Long, seatIds: List<Long>): List<SeatEntity>
 
     fun findByTheaterIdAndSeatIdsByPessimisticLock(theaterId: Long, seatIds: List<Long>): List<SeatEntity>
+
+    fun findByTheaterIdAndSeatIdsByOptimisticLock(theaterId: Long, seatIds: List<Long>): List<SeatEntity>
 }

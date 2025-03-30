@@ -19,4 +19,13 @@ interface SeatJpaRepository : JpaRepository<SeatEntity, Long> {
       """)
     @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000"))
     fun findByTheaterIdAndSeatIdsByPessimisticLock(theaterId: Long, seatIds: List<Long>): List<SeatEntity>
+
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("""
+    SELECT s 
+    FROM seats s 
+    WHERE s.theater.id = :theaterId 
+      AND s.id IN :seatIds 
+      """)
+    fun findByTheaterIdAndSeatIdsByOptimisticLock(theaterId: Long, seatIds: List<Long>): List<SeatEntity>
 }

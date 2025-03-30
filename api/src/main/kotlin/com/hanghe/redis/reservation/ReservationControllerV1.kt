@@ -33,4 +33,15 @@ class ReservationControllerV1(
             seatIds = request.seatIds,
         )
     }
+
+    @PostMapping("/optimistic")
+    fun reservationWithOptimisticLock(
+        @RequestBody request: MovieReservationRequest
+    ) {
+        service.reservationWithOptimisticLock(
+            screeningId = request.screeningId,
+            userId = request.userId,
+            seatIds = request.seatIds,
+        )
+    }
 }

@@ -43,6 +43,10 @@ class SeatRepositoryImpl(
         return seatJpaRepository.findByTheaterIdAndSeatIdsByPessimisticLock(theaterId, seatIds)
     }
 
+    override fun findByTheaterIdAndSeatIdsByOptimisticLock(theaterId: Long, seatIds: List<Long>): List<SeatEntity> {
+        return seatJpaRepository.findByTheaterIdAndSeatIdsByOptimisticLock(theaterId, seatIds)
+    }
+
     companion object {
         private val qSeat = QSeatEntity.seatEntity
         private val qTheater = QTheaterEntity.theaterEntity
