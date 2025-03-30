@@ -1,0 +1,9 @@
+### 영화 예약 API
+POST http://localhost:8080/api/v1/movies/reservations
+Content-Type: application/json
+
+{
+  "screeningId": 1,
+  "userId": "user-A",
+  "seatIds": [1, 2, 3]
+}

@@ -1,0 +1,7 @@
+package com.hanghe.redis.mysql.seat
+
+import com.hanghe.redis.movie.seat.SeatEntity
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface SeatJpaRepository : JpaRepository<SeatEntity, Long> {
+}

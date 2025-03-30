@@ -9,4 +9,6 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:5.3.2")
     testImplementation("io.kotest:kotest-framework-api:5.3.2")
     testImplementation("io.mockk:mockk:1.13.5")
+
+    testImplementation("net.bytebuddy:byte-buddy:1.14.7")
 }

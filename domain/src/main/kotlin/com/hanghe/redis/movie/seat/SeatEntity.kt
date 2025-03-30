@@ -19,7 +19,7 @@ class SeatEntity(
     val id: Long? = null,
 
     @Column(nullable = false)
-    val seatCode: String,
+    val seatCode: SeatCode,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "theater_id", nullable = false)
