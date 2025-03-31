@@ -20,3 +20,5 @@ class UserReservationPolicy(
         }
     }
 }
+
+fun List<ReservationEntity>.countByUser(userId: String) = this.count { it.createdBy == userId }

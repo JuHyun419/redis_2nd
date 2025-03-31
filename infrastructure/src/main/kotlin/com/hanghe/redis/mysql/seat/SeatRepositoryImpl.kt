@@ -39,12 +39,8 @@ class SeatRepositoryImpl(
             .fetch()
     }
 
-    override fun findByTheaterIdAndSeatIdsByPessimisticLock(theaterId: Long, seatIds: List<Long>): List<SeatEntity> {
-        return seatJpaRepository.findByTheaterIdAndSeatIdsByPessimisticLock(theaterId, seatIds)
-    }
-
-    override fun findByTheaterIdAndSeatIdsByOptimisticLock(theaterId: Long, seatIds: List<Long>): List<SeatEntity> {
-        return seatJpaRepository.findByTheaterIdAndSeatIdsByOptimisticLock(theaterId, seatIds)
+    override fun findByTheaterIdAndSeatIds(theaterId: Long, seatIds: List<Long>): List<SeatEntity> {
+        return seatJpaRepository.findByTheaterIdAndIdIn(theaterId, seatIds)
     }
 
     companion object {

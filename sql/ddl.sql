@@ -84,4 +84,4 @@ CREATE TABLE reservations
     FOREIGN KEY (seat_id) REFERENCES seats (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-UNIQUE KEY uniq_screening_seat (screening_id, seat_id)
+CREATE INDEX idx_screening_seat ON reservations (screening_id, seat_id)

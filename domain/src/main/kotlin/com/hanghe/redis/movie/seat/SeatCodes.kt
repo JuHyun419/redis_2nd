@@ -1,5 +1,7 @@
 package com.hanghe.redis.movie.seat
 
+import com.hanghe.redis.reservation.ReservationEntity
+
 @JvmInline
 value class SeatCodes(val values: List<SeatCode>) {
 
@@ -25,15 +27,23 @@ value class SeatCodes(val values: List<SeatCode>) {
 
         val duplicated = values.filter { it in existing.values }
 
+        // TODO: Custom Exception
         require(duplicated.isEmpty()) {
-            "요청하신 예약 중 이미 예약된 좌석이 존재합니다. 중복 좌석: ${duplicated.map { it.value }}"
+            "요청하신 좌석 중 이미 예약된 좌석이 존재합니다. 중복 좌석: ${duplicated.map { it.value }}"
         }
     }
 
     companion object {
         private fun from(seats: List<SeatEntity>): SeatCodes = SeatCodes(seats.map { it.seatCode })
 
+        private fun from(reservations: List<ReservationEntity>): SeatCodes? {
+            return reservations
+                .takeIf { it.isNotEmpty() }
+                ?.let { SeatCodes(it.map { r -> r.seat.seatCode }) }
+        }
+
         operator fun invoke(seats: List<SeatEntity>): SeatCodes = from(seats)
+        operator fun invoke(reservations: List<ReservationEntity>): SeatCodes? = from(reservations)
     }
 }
 
