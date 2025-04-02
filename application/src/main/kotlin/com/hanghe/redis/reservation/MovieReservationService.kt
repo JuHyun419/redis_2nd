@@ -1,6 +1,6 @@
 package com.hanghe.redis.reservation
 
-import com.hanghe.redis.message.MessageClient
+import com.hanghe.redis.message.fcm.FCMMessageClient
 import com.hanghe.redis.movie.seat.SeatCodes
 import com.hanghe.redis.movie.seat.SeatEntity
 import com.hanghe.redis.mysql.reservation.ReservationRepository
@@ -8,6 +8,7 @@ import com.hanghe.redis.mysql.screening.ScreeningRepository
 import com.hanghe.redis.mysql.seat.SeatRepository
 import com.hanghe.redis.screening.ScreeningEntity
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,7 +26,7 @@ class MovieReservationService(
     val reservationRepository: ReservationRepository,
     val seatRepository: SeatRepository,
     val screeningRepository: ScreeningRepository,
-    val messageClient: MessageClient,
+    val eventPublisher: ApplicationEventPublisher,
 
     private val reservationPolicy: UserReservationPolicy
 ) {
@@ -58,8 +59,14 @@ class MovieReservationService(
         val newReservations = reservationEntities(seats, screening, userId)
         reservationRepository.saveAll(newReservations)
 
-        // TODO: 비동기 적용
-        messageClient.send(userId, screening.theaterName, screening.movie.title, requestSeatCodes)
+        eventPublisher.publishEvent(
+            FCMMessageClient.ReservationCompletedEvent(
+                userId,
+                screening.theaterName,
+                screening.movie.title,
+                requestSeatCodes
+            )
+        )
     }
 
 
@@ -78,8 +85,14 @@ class MovieReservationService(
         val newReservations = reservationEntities(seats, screening, userId)
         reservationRepository.saveAll(newReservations)
 
-        // TODO: 비동기 적용
-        messageClient.send(userId, screening.theaterName, screening.movie.title, requestSeatCodes)
+        eventPublisher.publishEvent(
+            FCMMessageClient.ReservationCompletedEvent(
+                userId,
+                screening.theaterName,
+                screening.movie.title,
+                requestSeatCodes
+            )
+        )
     }
 
 
@@ -98,8 +111,14 @@ class MovieReservationService(
         val newReservations = reservationEntities(seats, screening, userId)
         reservationRepository.saveAll(newReservations)
 
-        // TODO: 비동기 적용
-        messageClient.send(userId, screening.theaterName, screening.movie.title, requestSeatCodes)
+        eventPublisher.publishEvent(
+            FCMMessageClient.ReservationCompletedEvent(
+                userId,
+                screening.theaterName,
+                screening.movie.title,
+                requestSeatCodes
+            )
+        )
     }
 
     private fun reservationEntities(
