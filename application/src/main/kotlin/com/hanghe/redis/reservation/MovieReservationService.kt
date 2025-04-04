@@ -6,6 +6,7 @@ import com.hanghe.redis.movie.seat.SeatEntity
 import com.hanghe.redis.mysql.reservation.ReservationRepository
 import com.hanghe.redis.mysql.screening.ScreeningRepository
 import com.hanghe.redis.mysql.seat.SeatRepository
+import com.hanghe.redis.ratelimiter.RateLimiter
 import com.hanghe.redis.screening.ScreeningEntity
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
@@ -26,9 +27,10 @@ class MovieReservationService(
     val reservationRepository: ReservationRepository,
     val seatRepository: SeatRepository,
     val screeningRepository: ScreeningRepository,
-    val eventPublisher: ApplicationEventPublisher,
 
-    private val reservationPolicy: UserReservationPolicy
+    val eventPublisher: ApplicationEventPublisher,
+    private val reservationPolicy: UserReservationPolicy,
+    private val rateLimiter: RateLimiter
 ) {
 
     private val logger = LoggerFactory.getLogger(MovieReservationService::class.java)
@@ -38,6 +40,8 @@ class MovieReservationService(
         userId: String,
         seatIds: List<Long>
     ) {
+        rateLimiter.reservedRateLimit(screeningId, userId)
+
         val reservations = reservationRepository.findByScreeningId(screeningId)
         reservationPolicy.validate(userId, reservations.countByUser(userId), seatIds.size)
 

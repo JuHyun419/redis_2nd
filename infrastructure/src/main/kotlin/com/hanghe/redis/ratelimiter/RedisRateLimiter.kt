@@ -23,8 +23,20 @@ class RedisRateLimiter(
         validateExceedRequests(ip, currentRequest)
     }
 
+    override fun reservedRateLimit(screeningId: Long, userId: String) {
+        val key = "$RESERVATION_BLOCKED_KEY:$screeningId:$userId"
+
+        val isFirstReservation = redisTemplate
+            .opsForValue()
+            .setIfAbsent(key, "BLOCKED", RESERVATION_BLOCK_TIME)
+
+        if (isFirstReservation != true) {
+            throw RateLimitExceededException("같은 시간대의 영화는 5분에 최대 1회 예약이 가능합니다. 잠시 후 시도해주세요.")
+        }
+    }
+
     private fun validateExceedRequests(ip: String, currentRequest: Long) {
-        if (currentRequest > REQUEST_LIMIT) {
+        if (currentRequest >= REQUEST_LIMIT) {
             blocked(ip)
             throw RateLimitExceededException("Too many requests! You are blocked for 1 hour")
         }
@@ -51,10 +63,14 @@ class RedisRateLimiter(
     companion object {
         private const val MOVIES_RATE_LIMIT_KEY = "movies:rate:limit"
         private const val MOVIES_BLOCKED_KEY = "movies:blocked"
+        private const val RESERVATION_BLOCKED_KEY = "reservation:blocked"
+
         private const val REQUEST_LIMIT = 50
         private const val FIRST_REQUEST_COUNT = 1L
 
         private val RATE_LIMIT_TIME_WINDOW = Duration.ofMinutes(1)
         private val BLOCK_TIME = Duration.ofHours(1)
+
+        private val RESERVATION_BLOCK_TIME = Duration.ofMinutes(5)
     }
 }
