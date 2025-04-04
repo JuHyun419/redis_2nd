@@ -5,6 +5,7 @@ import com.hanghe.redis.movie.MovieService
 import com.hanghe.redis.movie.response.GetMovieScreeningResponses
 import com.hanghe.redis.mysql.movie.MovieRepository
 import com.hanghe.redis.mysql.screening.ScreeningRepository
+import com.hanghe.redis.ratelimiter.RateLimiter
 import fixture.GetMovieScreeningResponsesFixture
 import fixture.MovieEntityFixture
 import fixture.ScreeningEntityFixture
@@ -21,16 +22,19 @@ class MovieServiceTest : BehaviorSpec({
     val movieRepository = mockk<MovieRepository>()
     val screeningRepository = mockk<ScreeningRepository>()
     val fakeCacheManager = FakeCacheManager()
+    val rateLimiter = FakeRateLimiter()
 
     val movieService = MovieService(
         movieRepository = movieRepository,
         screeningRepository = screeningRepository,
-        cacheManager = fakeCacheManager
+        cacheManager = fakeCacheManager,
+        rateLimiter = rateLimiter,
     )
 
     given("MovieService.getAllScreeningMovies()") {
         val expectedTitle = "Inception"
         val expectedGenre = "SF"
+        val ip = "127.0.0.1"
         val expectedCacheKey = "movies:$expectedGenre:v1"
         val movies = listOf(MovieEntityFixture.create(1L, expectedTitle, expectedGenre))
         val screenings = listOf(ScreeningEntityFixture.create(1L, "CGV"))
@@ -40,7 +44,7 @@ class MovieServiceTest : BehaviorSpec({
             every { screeningRepository.findByMovieIdOrderByStartTime(1) } returns listOf(screenings[0])
 
             then("캐싱 처리를 하지 않고 검색 처리를 진행한다") {
-                val actual = movieService.getAllScreeningMovies(expectedTitle, expectedGenre)
+                val actual = movieService.getAllScreeningMovies(expectedTitle, expectedGenre, ip)
 
                 actual.responses.size shouldBe 1
                 actual.responses[0].title shouldBe expectedTitle
@@ -57,7 +61,7 @@ class MovieServiceTest : BehaviorSpec({
             every { screeningRepository.findByMovieIdOrderByStartTime(1) } returns listOf(screenings[0])
 
             then("검색 처리를 진행하고 검색 결과를 캐싱처리 한다") {
-                val actual = movieService.getAllScreeningMovies(null, expectedGenre)
+                val actual = movieService.getAllScreeningMovies(null, expectedGenre, ip)
                 val cachedActual = fakeCacheManager.getOrNull(expectedCacheKey, GetMovieScreeningResponses::class)
 
                 actual.responses.size shouldBe 1
@@ -77,7 +81,7 @@ class MovieServiceTest : BehaviorSpec({
             ) { cachedResponse }
 
             then("이미 존재하는 캐시 데이터를 가져온다") {
-                val actual = movieService.getAllScreeningMovies(null, expectedGenre)
+                val actual = movieService.getAllScreeningMovies(null, expectedGenre, ip)
 
                 actual shouldBe cachedResponse
             }
@@ -88,7 +92,7 @@ class MovieServiceTest : BehaviorSpec({
 
             then("예외를 던진다") {
                 shouldThrow<IllegalArgumentException> {
-                    movieService.getAllScreeningMovies(invalidTitle, expectedGenre)
+                    movieService.getAllScreeningMovies(invalidTitle, expectedGenre, ip)
                 }.message shouldBe "Title cannot exceed 255 characters"
             }
         }
@@ -99,7 +103,7 @@ class MovieServiceTest : BehaviorSpec({
 
             then("예외를 던진다") {
                 shouldThrow<IllegalArgumentException> {
-                    movieService.getAllScreeningMovies(title, invalidGenre)
+                    movieService.getAllScreeningMovies(title, invalidGenre, ip)
                 }.message shouldBe "$invalidGenre is not exist in MovieGenre"
             }
         }
@@ -139,4 +143,11 @@ class FakeCacheManager : CacheManager {
     fun clear() {
         cache.clear()
     }
+}
+
+class FakeRateLimiter : RateLimiter {
+    override fun validateAllowed(ip: String) {
+        // Success
+    }
+
 }

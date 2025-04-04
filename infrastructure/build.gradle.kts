@@ -12,4 +12,5 @@ dependencies {
     kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
 
     implementation(project(":domain"))
+    implementation(project(":common"))
 }
