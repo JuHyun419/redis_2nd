@@ -1,11 +1,12 @@
 package movie
 
-import com.hanghe.redis.cache.CacheManager
 import com.hanghe.redis.movie.MovieService
 import com.hanghe.redis.movie.response.GetMovieScreeningResponses
 import com.hanghe.redis.mysql.movie.MovieRepository
 import com.hanghe.redis.mysql.screening.ScreeningRepository
-import com.hanghe.redis.ratelimiter.RateLimiter
+import fake.FakeCacheManager
+import fake.FakeRateLimiter
+import fake.RateLimitExceededException
 import fixture.GetMovieScreeningResponsesFixture
 import fixture.MovieEntityFixture
 import fixture.ScreeningEntityFixture
@@ -15,12 +16,11 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import java.time.Duration
-import kotlin.reflect.KClass
 
 class MovieServiceTest : BehaviorSpec({
 
-    val movieRepository = mockk<MovieRepository>()
-    val screeningRepository = mockk<ScreeningRepository>()
+    val movieRepository = mockk<MovieRepository>(relaxed = true)
+    val screeningRepository = mockk<ScreeningRepository>(relaxed = true)
     val fakeCacheManager = FakeCacheManager()
     val rateLimiter = FakeRateLimiter()
 
@@ -30,6 +30,10 @@ class MovieServiceTest : BehaviorSpec({
         cacheManager = fakeCacheManager,
         rateLimiter = rateLimiter,
     )
+
+    beforeTest {
+        rateLimiter.clear()
+    }
 
     given("MovieService.getAllScreeningMovies()") {
         val expectedTitle = "Inception"
@@ -107,47 +111,25 @@ class MovieServiceTest : BehaviorSpec({
                 }.message shouldBe "$invalidGenre is not exist in MovieGenre"
             }
         }
-    }
-})
 
-class FakeCacheManager : CacheManager {
-    private val cache = mutableMapOf<String, Any>()
+        `when`("IP 가 차단된 경우") {
+            then("RateLimitExceedException 예외를 던진다") {
+                rateLimiter.block()
 
-    override fun <T : Any> getOrNull(key: String, clazz: KClass<T>): T? {
-        return cache[key]?.let { clazz.java.cast(it) }
-    }
+                shouldThrow<RateLimitExceededException> {
+                    movieService.getAllScreeningMovies(expectedTitle, expectedGenre, ip)
+                }.message shouldBe "Too many requests! Try again later"
+            }
+        }
 
-    override fun <T : Any> getOrPut(
-        key: String,
-        ttl: Duration,
-        clazz: KClass<T>,
-        cacheable: () -> T
-    ): T {
-        return getOrNull(key, clazz) ?: run {
-            put(key, ttl, clazz, cacheable)
+        `when`("동일한 IP 요청이 50회를 초과한 경우") {
+            then("RateLimitExceedException 예외를 던진다") {
+                rateLimiter.exceedRequest(ip)
+
+                shouldThrow<RateLimitExceededException> {
+                    movieService.getAllScreeningMovies(expectedTitle, expectedGenre, ip)
+                }.message shouldBe "Too many requests! You are blocked for 1 hour"
+            }
         }
     }
-
-    override fun <T : Any> put(
-        key: String,
-        ttl: Duration,
-        clazz: KClass<T>,
-        cacheable: () -> T
-    ): T {
-        val value = cacheable()
-        cache[key] = value
-
-        return value
-    }
-
-    fun clear() {
-        cache.clear()
-    }
-}
-
-class FakeRateLimiter : RateLimiter {
-    override fun validateAllowed(ip: String) {
-        // Success
-    }
-
-}
+})
