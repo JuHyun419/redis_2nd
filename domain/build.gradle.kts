@@ -13,4 +13,6 @@ dependencies {
 plugins {
     kotlin("plugin.jpa") version "1.9.25"
     kotlin("kapt")
+
+    id("java-test-fixtures")
 }
