@@ -46,7 +46,6 @@ subprojects {
             html.required = true
             xml.required = true
             csv.required = false
-            xml.outputLocation = file("${layout.buildDirectory}/reports/jacoco.xml")
         }
 
         val qDomainList = mutableListOf<String>()
@@ -59,7 +58,14 @@ subprojects {
                 classDirectories.files.map {
                     fileTree(it) {
                         exclude(
-                            qDomainList,
+                            "**/MovieGrade.class",
+                            "**/*Entity.class",
+                            "**/*Request.class",
+                            "**/*Response.class",
+                            "**/BaseEntity.class",
+                            "**/config/**",
+                            "**/DataInitializer.class",
+                            *qDomainList.toTypedArray()
                         )
                     }
                 }
