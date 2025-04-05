@@ -2,9 +2,9 @@ package reservation
 
 import com.hanghe.redis.movie.seat.SeatCode
 import com.hanghe.redis.movie.seat.SeatEntity
-import com.hanghe.redis.mysql.reservation.ReservationRepository
-import com.hanghe.redis.mysql.screening.ScreeningRepository
-import com.hanghe.redis.mysql.seat.SeatRepository
+import com.hanghe.redis.reservation.ReservationRepository
+import com.hanghe.redis.screening.ScreeningRepository
+import com.hanghe.redis.seat.SeatRepository
 import com.hanghe.redis.reservation.MovieReservationService
 import com.hanghe.redis.reservation.ReservationEntity
 import com.hanghe.redis.reservation.UserReservationPolicy

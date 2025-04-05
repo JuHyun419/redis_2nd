@@ -3,9 +3,9 @@ package com.hanghe.redis.reservation
 import com.hanghe.redis.message.fcm.FCMMessageClient
 import com.hanghe.redis.movie.seat.SeatCodes
 import com.hanghe.redis.movie.seat.SeatEntity
-import com.hanghe.redis.mysql.reservation.ReservationRepository
-import com.hanghe.redis.mysql.screening.ScreeningRepository
-import com.hanghe.redis.mysql.seat.SeatRepository
+import com.hanghe.redis.reservation.ReservationRepository
+import com.hanghe.redis.screening.ScreeningRepository
+import com.hanghe.redis.seat.SeatRepository
 import com.hanghe.redis.ratelimiter.RateLimiter
 import com.hanghe.redis.screening.ScreeningEntity
 import org.slf4j.LoggerFactory

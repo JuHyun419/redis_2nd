@@ -3,6 +3,10 @@ dependencies {
 
     implementation(project(":domain"))
     implementation(project(":infrastructure"))
+    implementation(project(":infrastructure:mysql"))
+    implementation(project(":infrastructure:message"))
+    implementation(project(":infrastructure:cache"))
+    implementation(project(":infrastructure:ratelimiter"))
 
     // kotest
     testImplementation("io.kotest:kotest-runner-junit5:5.3.2")

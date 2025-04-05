@@ -1,9 +1,8 @@
 package com.hanghe.redis.movie
 
-import com.hanghe.redis.mysql.movie.MovieRepository
-import com.hanghe.redis.mysql.screening.ScreeningRepository
-import com.hanghe.redis.mysql.theater.TheaterRepository
 import com.hanghe.redis.screening.ScreeningEntity
+import com.hanghe.redis.screening.ScreeningRepository
+import com.hanghe.redis.theater.TheaterRepository
 import org.springframework.boot.CommandLineRunner
 import java.time.LocalTime
 import kotlin.random.Random

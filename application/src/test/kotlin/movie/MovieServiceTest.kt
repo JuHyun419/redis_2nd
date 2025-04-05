@@ -2,8 +2,8 @@ package movie
 
 import com.hanghe.redis.movie.MovieService
 import com.hanghe.redis.movie.response.GetMovieScreeningResponses
-import com.hanghe.redis.mysql.movie.MovieRepository
-import com.hanghe.redis.mysql.screening.ScreeningRepository
+import com.hanghe.redis.movie.MovieRepository
+import com.hanghe.redis.screening.ScreeningRepository
 import fake.FakeCacheManager
 import fake.FakeRateLimiter
 import fake.RateLimitExceededException
