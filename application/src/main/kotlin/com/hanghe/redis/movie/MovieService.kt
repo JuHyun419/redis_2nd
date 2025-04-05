@@ -26,7 +26,7 @@ class MovieService(
     ): GetMovieScreeningResponses {
         validateParams(title, genre)
 
-        rateLimiter.validateAllowed(ip)
+        rateLimiter.getMoviesRateLimit(ip)
 
         return if (title.isNullOrEmpty()) {
             searchCached(title, genre)

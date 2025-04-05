@@ -6,7 +6,7 @@ class FakeRateLimiter : RateLimiter {
     private val redis = mutableMapOf<String, Int>()
     private var isBlocked = false
 
-    override fun validateAllowed(ip: String) {
+    override fun getMoviesRateLimit(ip: String) {
         if (isBlocked) {
             throw RateLimitExceededException("Too many requests! Try again later")
         }

@@ -10,7 +10,7 @@ class RedisRateLimiter(
     private val redisTemplate: RedisTemplate<String, String>
 ) : RateLimiter {
 
-    override fun validateAllowed(ip: String) {
+    override fun getMoviesRateLimit(ip: String) {
         if (isBlocked(ip)) {
             throw RateLimitExceededException("Too many requests! Try again later")
         }
