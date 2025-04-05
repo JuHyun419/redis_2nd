@@ -22,8 +22,6 @@ class FakeRateLimiter : RateLimiter {
         if (redis.containsKey("$screeningId:$userId")) {
             throw RateLimitExceededException("같은 시간대의 영화는 5분에 최대 1회 예약이 가능합니다. 잠시 후 시도해주세요.")
         }
-
-        redis["$screeningId:$userId"] = 1
     }
 
     fun block() {
@@ -32,6 +30,10 @@ class FakeRateLimiter : RateLimiter {
 
     fun exceedRequest(ip: String) {
         this.redis[ip] = 50
+    }
+
+    fun setReserved(screeningId: Long, userId: String) {
+        this.redis["$screeningId:$userId"] = 1
     }
 
     fun clear() {

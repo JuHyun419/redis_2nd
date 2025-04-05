@@ -75,6 +75,8 @@ class MovieReservationService(
 
 
     fun reservationWithPessimisticLock(screeningId: Long, userId: String, seatIds: List<Long>) {
+        rateLimiter.reservedRateLimit(screeningId, userId)
+
         val reservations = reservationRepository.findByScreeningId(screeningId)
         reservationPolicy.validate(userId, reservations.countByUser(userId), seatIds.size)
 
