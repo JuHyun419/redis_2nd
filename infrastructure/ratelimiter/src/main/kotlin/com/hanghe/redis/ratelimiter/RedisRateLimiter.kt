@@ -12,7 +12,7 @@ class RedisRateLimiter(
 ) : RateLimiter {
 
     /**
-     * 1분 내 50회 이상 요청 시 1시간 동안 해당 iP 차단
+     * 1분 내 50회 이상 요청 시 1시간 동안 해당 IP 차단
      */
     override fun getMoviesRateLimit(ip: String) {
         if (isBlocked(ip)) {
