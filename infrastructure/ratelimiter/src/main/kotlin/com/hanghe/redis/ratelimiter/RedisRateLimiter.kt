@@ -72,13 +72,25 @@ class RedisRateLimiter(
             RedisScript.of(script, Long::class.java),
             listOf("$MOVIES_RATE_LIMIT_KEY:$ip", "$MOVIES_BLOCKED_KEY:$ip"),
             "$REQUEST_LIMIT", // ARGV[1] - 요청 한도
-            "3600", // ARGV[2] - 블록 타임 (1시간)
-            "60" // ARGV[3] - TTL (1분)
+            "3600",                   // ARGV[2] - 블록 타임 (1시간)
+            "60"                      // ARGV[3] - TTL (1분)
         )
 
         when (result) {
             -1L -> throw RateLimitExceededException("Too many requests! Try again later")
             -2L -> throw RateLimitExceededException("Too many requests! You are blocked for 1 hour")
+        }
+    }
+
+    private fun isBlocked(ip: String): Boolean {
+        val blockedKey = "$MOVIES_BLOCKED_KEY:$ip"
+
+        return redisTemplate.hasKey(blockedKey)
+    }
+
+    private fun setExpireWhenFirstRequest(current: Long, key: String) {
+        if (current == FIRST_REQUEST_COUNT) {
+            redisTemplate.expire(key, RATE_LIMIT_TIME_WINDOW)
         }
     }
 
@@ -89,22 +101,10 @@ class RedisRateLimiter(
         }
     }
 
-    private fun isBlocked(ip: String): Boolean {
-        val blockedKey = "$MOVIES_BLOCKED_KEY:$ip"
-
-        return redisTemplate.hasKey(blockedKey)
-    }
-
     private fun blocked(ip: String) {
         val blockedKey = "$MOVIES_BLOCKED_KEY:$ip"
 
         redisTemplate.opsForValue().set(blockedKey, "BLOCKED", BLOCK_TIME)
-    }
-
-    private fun setExpireWhenFirstRequest(current: Long, key: String) {
-        if (current == FIRST_REQUEST_COUNT) {
-            redisTemplate.expire(key, RATE_LIMIT_TIME_WINDOW)
-        }
     }
 
     companion object {
