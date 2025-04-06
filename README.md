@@ -194,7 +194,7 @@ explain select
 인덱스 설정이 되어있지 않았을 때,
 ![img_3.png](img_3.png)
 
-(title, genre) 복합 인덱스 설정 후
+(genre, title) 복합 인덱스 설정 후
 ![img_4.png](img_4.png)
 
 ### TODO
@@ -210,3 +210,25 @@ explain select
 - [X] Optimistic Lock 구현
 - [ ] AOP 기반 Distributed Lock 구현
 - [ ] 함수형 기반 Distributed Lock 구현
+
+## 4주차 시나리오
+> 4주차는 무분별한 요청으로 인한 서버 과부하나 악의적인 공격을 방지하여 서버의 안정성을 높이기 위한 `RateLimit` 을 구현합니다.
+> 또한 테스트 코드를 작성하여 커버리지를 측정하고, 리팩토링을 진행합니다.
+
+- [X] 조회 API RateLimit 적용 - 1분 내 50회 이상 요청 시 1시간 동안 해당 IP 차단
+- [X] 조회 API RateLimit 을 Lua Script 를 작성하여 적용
+- [X] 예약 API RateLimit 적용 - 유저당 같은 시간대의 영화는 5분에 최대 1번 예약 가능
+- [ ] 통합 테스트 작성
+
+### Test Coverage
+#### application 모듈
+![img_7.png](img_7.png)
+
+#### domain 모듈
+> domain 모듈의 Entity 는 생성자/getter 등의 커버리지로 인해 exclude 처리 하였습니다.
+
+![img_8.png](img_8.png)
+
+### 리팩터링
+- 부분적인 네이밍 개선
+- infra 모듈 분리 (cache, message, mysql, ratelimiter)
