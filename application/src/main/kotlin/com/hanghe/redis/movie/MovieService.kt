@@ -25,7 +25,8 @@ class MovieService(
     ): GetMovieScreeningResponses {
         validateParams(title, genre)
 
-        rateLimiter.getMoviesRateLimit(ip)
+        rateLimiter.getMoviesRateLimitWithLuaScript(ip)
+//        rateLimiter.getMoviesRateLimit(ip)
 
         return if (title.isNullOrEmpty()) {
             searchCached(title, genre)

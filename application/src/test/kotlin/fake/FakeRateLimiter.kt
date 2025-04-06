@@ -24,6 +24,10 @@ class FakeRateLimiter : RateLimiter {
         }
     }
 
+    override fun getMoviesRateLimitWithLuaScript(ip: String) {
+        TODO("Not yet implemented")
+    }
+
     fun block() {
         this.isBlocked = true
     }
