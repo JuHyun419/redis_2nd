@@ -49,7 +49,7 @@ class RedisRateLimiter(
             
             local requestLimitCount = tonumber(ARGV[1])
             local blockTime = tonumber(ARGV[2])
-            lock rateLimitTTL = tonumber(ARGV[3])
+            local rateLimitTTL = tonumber(ARGV[3])
             
             if redis.call("EXISTS", blockedKey) == 1 then
                 return -1
