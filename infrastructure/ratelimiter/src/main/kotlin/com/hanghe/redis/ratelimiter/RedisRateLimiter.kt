@@ -9,6 +9,7 @@ import java.time.Duration
 @Component
 class RedisRateLimiter(
     private val redisTemplate: RedisTemplate<String, String>,
+    private val moviesRateLimitScript: RedisScript<Long>,
 ) : RateLimiter {
 
     /**
@@ -43,37 +44,12 @@ class RedisRateLimiter(
     }
 
     override fun getMoviesRateLimitWithLuaScript(ip: String) {
-        val script = """
-            local rateLimitKey = KEYS[1]
-            local blockedKey = KEYS[2]
-            
-            local requestLimitCount = tonumber(ARGV[1])
-            local blockTime = tonumber(ARGV[2])
-            local rateLimitTTL = tonumber(ARGV[3])
-            
-            if redis.call("EXISTS", blockedKey) == 1 then
-                return -1
-            end
-            
-            local current = redis.call("INCR", rateLimitKey)
-            if current == 1 then
-                redis.call("EXPIRE", rateLimitKey, rateLimitTTL)
-            end
-
-            if current > tonumber(ARGV[1]) then
-                redis.call("SET", blockedKey, "BLOCKED", "EX", blockTime)
-                return -2
-            end
-            
-            return current
-        """.trimIndent()
-
         val result = redisTemplate.execute(
-            RedisScript.of(script, Long::class.java),
+            moviesRateLimitScript,
             listOf("$MOVIES_RATE_LIMIT_KEY:$ip", "$MOVIES_BLOCKED_KEY:$ip"),
-            "$REQUEST_LIMIT", // ARGV[1] - 요청 한도
-            "3600",                   // ARGV[2] - 블록 타임 (1시간)
-            "60"                      // ARGV[3] - TTL (1분)
+            "$REQUEST_LIMIT",
+            "3600",
+            "60"
         )
 
         when (result) {
@@ -83,7 +59,7 @@ class RedisRateLimiter(
     }
 
     private fun isBlocked(ip: String): Boolean {
-        val blockedKey = "$MOVIES_BLOCKED_KEY:$ip"
+        val blockedKey = getMoviesBlockedKey(ip)
 
         return redisTemplate.hasKey(blockedKey)
     }
@@ -102,9 +78,13 @@ class RedisRateLimiter(
     }
 
     private fun blocked(ip: String) {
-        val blockedKey = "$MOVIES_BLOCKED_KEY:$ip"
+        val blockedKey = getMoviesBlockedKey(ip)
 
         redisTemplate.opsForValue().set(blockedKey, "BLOCKED", BLOCK_TIME)
+    }
+
+    private fun getMoviesBlockedKey(ip: String): String {
+        return "$MOVIES_BLOCKED_KEY:$ip"
     }
 
     companion object {
